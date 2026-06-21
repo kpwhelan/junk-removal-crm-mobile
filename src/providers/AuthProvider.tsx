@@ -1,49 +1,68 @@
-import { useEffect, useState } from "react";
-import * as SecureStore from "expo-secure-store";
-import { AuthContext } from "../context/AuthContext";
-import { User } from "../types/auth";
+import { useEffect, useState } from 'react';
+import { AuthContext } from '../context/AuthContext';
+import { User } from '../types/auth';
+import {
+  getAccessToken,
+  getRefreshToken,
+  saveTokens,
+  clearTokens,
+} from '../auth/authStorage';
+import { registerLogoutHandler } from '../auth/authEvents';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [refreshToken, setRefreshToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const isAuthenticated = !!accessToken;
 
   useEffect(() => {
-    async function loadStoredToken() {
-      const storedToken = await SecureStore.getItemAsync("accessToken");
+    async function loadStoredAuth() {
+      const storedAccessToken = await getAccessToken();
+      const storedRefreshToken = await getRefreshToken();
 
-      if (storedToken) {
-        setAccessToken(storedToken);
-      }
+      setAccessToken(storedAccessToken);
+      setRefreshToken(storedRefreshToken);
 
       setIsLoading(false);
     }
 
-    loadStoredToken();
+    loadStoredAuth();
+
+    registerLogoutHandler(() => {
+      setAccessToken(null);
+      setRefreshToken(null);
+      setUser(null);
+    });
   }, []);
 
-  async function login(token: string, user: User) {
-    await SecureStore.setItemAsync("accessToken", token);
+  async function login(
+    accessToken: string,
+    refreshToken: string,
+    user: User
+  ) {
+    await saveTokens(accessToken, refreshToken);
 
-    setAccessToken(token);
+    setAccessToken(accessToken);
+    setRefreshToken(refreshToken);
     setUser(user);
   }
 
   async function logout() {
-    await SecureStore.deleteItemAsync("accessToken");
+    await clearTokens();
 
     setAccessToken(null);
+    setRefreshToken(null);
     setUser(null);
   }
 
   return (
-    <>
     <AuthContext.Provider
       value={{
         user,
         accessToken,
+        refreshToken,
         isAuthenticated,
         isLoading,
         login,
@@ -52,6 +71,5 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     >
       {children}
     </AuthContext.Provider>
-    </>
   );
 }

@@ -1,3 +1,5 @@
+import { api } from '@/src/api/client';
+import { useAuth } from '@/src/hooks/useAuth';
 import { authStyles } from '@/src/styles/authStyles';
 import axios from 'axios';
 import { router } from 'expo-router';
@@ -16,29 +18,43 @@ export default function RegisterScreen() {
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [resultName, setResultName] = useState('');
 
-  function handleRegister() {
+  const { login } = useAuth();
+
+  async function handleRegister() {
     if (!firstName || !email || !password) {
       Alert.alert('Missing info', 'Please fill out all fields.');
       return;
     }
 
-    axios.post('http://localhost:3000/auth/register', {
-      firstName,
-      lastName,
-      email,
-      password,
-    }).then(res => {
-      console.log(res.data)
-    })
+    try {
+      const { data } = await api.post('/auth/register', {
+        firstName,
+        lastName,
+        email,
+        password,
+      })
 
-    Alert.alert('Success', 'Registration form submitted.');
+      await login(
+        data.accessToken,
+        data.refreshToken,
+        data.user
+      )
+
+      routher.replace('/(app)')
+    } catch (error) {
+      console.log('Registration failed', error)
+
+      Alert.alert(
+        'Registration failed',
+        'Please try again'
+      )
+    }
+    
   }
 
   return (
     <View style={authStyles.formContainer}>
-      <Text>{resultName}</Text>
       <Text style={styles.title}>Create Your Account</Text>
 
       <TextInput
@@ -82,7 +98,7 @@ export default function RegisterScreen() {
         <Text>Already have an account? </Text>
 
         <Pressable onPress={() => router.push('/login')}>
-          <Text style={authStyles.loginLink}>Login</Text>
+          <Text style={authStyles.loginLink}> Login</Text>
         </Pressable>
       </View>
     </View>
