@@ -8,7 +8,11 @@ import {
 } from '@/src/auth/authStorage';
 import { triggerLogout } from '@/src/auth/authEvents';
 
-const API_BASE_URL = 'http://localhost:3000';
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL;
+
+if (!API_BASE_URL) {
+  throw new Error('Missing EXPO_PUBLIC_API_URL');
+}
 
 export const api = axios.create({
   baseURL: API_BASE_URL,

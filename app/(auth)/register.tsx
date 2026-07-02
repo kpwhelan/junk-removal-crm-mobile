@@ -1,7 +1,6 @@
 import { api } from '@/src/api/client';
 import { useAuth } from '@/src/hooks/useAuth';
 import { authStyles } from '@/src/styles/authStyles';
-import axios from 'axios';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import {
@@ -41,7 +40,7 @@ export default function RegisterScreen() {
         data.user
       )
 
-      routher.replace('/(app)')
+      router.replace('/(app)')
     } catch (error) {
       console.log('Registration failed', error)
 

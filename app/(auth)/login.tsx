@@ -1,7 +1,6 @@
 import { api } from '@/src/api/client';
 import { useAuth } from '@/src/hooks/useAuth';
 import { authStyles } from '@/src/styles/authStyles';
-import axios from 'axios';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import {

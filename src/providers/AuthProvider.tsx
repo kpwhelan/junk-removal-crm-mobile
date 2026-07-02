@@ -8,6 +8,7 @@ import {
   clearTokens,
 } from '../auth/authStorage';
 import { registerLogoutHandler } from '../auth/authEvents';
+import { api } from '../api/client';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -15,17 +16,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [refreshToken, setRefreshToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const isAuthenticated = !!accessToken;
+  const isAuthenticated = !!accessToken && !!refreshToken && !!user;
 
   useEffect(() => {
     async function loadStoredAuth() {
-      const storedAccessToken = await getAccessToken();
-      const storedRefreshToken = await getRefreshToken();
+      try {
+        const storedAccessToken = await getAccessToken();
+        const storedRefreshToken = await getRefreshToken();
 
-      setAccessToken(storedAccessToken);
-      setRefreshToken(storedRefreshToken);
+        if (!storedAccessToken || !storedRefreshToken) {
+          return;
+        }
 
-      setIsLoading(false);
+        setAccessToken(storedAccessToken);
+        setRefreshToken(storedRefreshToken);
+
+        const response = await api.get<User>('/auth/me');
+
+        setUser(response.data);
+      } catch (error) {
+        await clearTokens();
+
+        setAccessToken(null);
+        setRefreshToken(null);
+        setUser(null);
+      } finally {
+        setIsLoading(false);
+      }
     }
 
     loadStoredAuth();
