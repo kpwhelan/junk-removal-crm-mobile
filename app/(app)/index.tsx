@@ -1,24 +1,37 @@
-import { Text, Pressable, StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import StatCard from '@/src/components/dashboard/StatCard';
+import { CalendarDays } from 'lucide-react-native';
+import DashboardHeader from '@/src/components/dashboard/DashboardHeader';
+import { useAuth } from '@/src/hooks/useAuth';
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { user } = useAuth();
+
+  const handleNewJobPress = () => {
+    router.push('/jobs/new')
+  }
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Junk Removal CRM</Text>
+      <DashboardHeader
+        message={`Hello, ${user.firstName}!`}
+        subtitle="Here's what's happening today..."
+        onNewJobPress={handleNewJobPress}
+      />
 
-      <Text style={styles.subtitle}>
-        Welcome to the mobile app.
-      </Text>
+      <View style={styles.statsRow}>
+        <StatCard
+          title="Today's Jobs"
+          value={3}
+          subtitle="2 Completed"
+          icon={<CalendarDays size={22} color="#FFF" />}
+          iconColor="#16A34A"
+        />
 
-      <Pressable
-        style={styles.button}
-        onPress={() => router.push('/register')}
-      >
-        <Text style={styles.buttonText}>Create Account</Text>
-      </Pressable>
+      </View>
     </SafeAreaView>
   );
 }
@@ -26,9 +39,13 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 24,
+    backgroundColor: '#F8FAFC',
+    padding: 16,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 16,
   },
   title: {
     fontSize: 32,

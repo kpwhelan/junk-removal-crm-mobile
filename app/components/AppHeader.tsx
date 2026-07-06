@@ -1,9 +1,12 @@
 import { Text, View, StyleSheet } from "react-native";
+import { useAuth } from "@/src/hooks/useAuth";
 
 export default function AppHeader() {
+  const { user } = useAuth();
+
   return (
     <View style={styles.header}>
-      <Text style={styles.logo}>Field Nexus</Text>
+      <Text style={styles.logo}>App Name Here</Text>
     </View>
   );
 }

@@ -23,7 +23,9 @@ export default function AppLayout() {
         <View style={baseStyles.container}>
             <AppHeader />
 
-            <Stack screenOptions={{ headerShown: false }} />
+            <View style={{ flex: 1}}>
+              <Stack screenOptions={{ headerShown: false}} />
+            </View>
         </View>
     )
 }
