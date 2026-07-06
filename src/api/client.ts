@@ -50,7 +50,6 @@ api.interceptors.response.use(
   (response) => response,
 
   async (error: AxiosError) => {
-    console.log('hi?????');
     const originalRequest = error.config as InternalAxiosRequestConfig & {
       _retry?: boolean;
     };
